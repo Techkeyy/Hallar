@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {profileHash,validatePlan} from '../core/discovery.ts';
+import type {Profile,DiscoveryQuery} from '../core/types.ts';
+const product=(name:string,solves:string):Profile=>({name,productUrl:'https://example.com/'+name,solves,audience:name==='music'?'Keyboard players':'Website operators',capabilities:[{id:'c1',name:solves,kind:'other',evidence:solves,sourceUrl:'https://example.com'}],limitations:[],unknowns:[],queries:['stale inherited query']});
+test('A query plan from another product is rejected before discovery',()=>{const a=product('website','Reduce unused CSS'),b=product('music','Find song chords');const plan:DiscoveryQuery[]=[{source:'reddit',query:'slow website',productProfileHash:profileHash(a)}];assert.notEqual(profileHash(a),profileHash(b));assert.throws(()=>validatePlan(b,plan),/identity mismatch/);});
+test('Meaningful edits invalidate a plan; stored queries cannot define identity',()=>{const p=product('music','Find song chords'),hash=profileHash(p);assert.equal(profileHash({...p,queries:['WordPress']}),hash);assert.notEqual(profileHash({...p,audience:'Different audience'}),hash);assert.notEqual(profileHash({...p,capabilities:[{...p.capabilities[0],name:'Different capability'}]}),hash);});
+test('Both source queries must match the exact confirmed profile',()=>{const p=product('music','Find song chords'),hash=profileHash(p);const q:DiscoveryQuery[]=[{source:'reddit',query:'piano chords',productProfileHash:hash},{source:'x',query:'"find the chords" -filter:retweets',productProfileHash:hash}];assert.equal(validatePlan(p,q),hash);assert.throws(()=>validatePlan(p,[q[0],{...q[1],productProfileHash:'wrong'}]));});

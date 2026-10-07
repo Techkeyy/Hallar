@@ -1,0 +1,2 @@
+import {session,reply,originCheck,resetSession} from '../../../lib/server';
+export async function POST(req:Request){try{originCheck(req);const s=await session(req);await resetSession(s.owner);return reply({ok:true},s.cookie);}catch(error){return reply({error:error instanceof Error?error.message:'New search could not start'},undefined,409);}}
