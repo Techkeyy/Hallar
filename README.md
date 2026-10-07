@@ -2,7 +2,7 @@
 
 **Find people you can actually help. Proof before pitch.**
 
-**[Live App](https://eca57d18247a343fe812.agent37.app)** · **[GitHub](https://github.com/Techkeyy/Hallar)**
+**[Live App](https://eca57d18247a343fe812.agent37.app)** · **[Demo Video](https://github.com/Techkeyy/Hallar/releases/tag/v0.1.0)** · **[GitHub](https://github.com/Techkeyy/Hallar)**
 
 Hallar learns what your product genuinely does, searches real public conversations for people experiencing problems it can actually solve, rejects weak matches, and checks promising opportunities against public evidence before preparing useful proof. It is a scout desk for founders and sellers who want a defensible reason to help someone before reaching out.
 
@@ -40,10 +40,10 @@ The current proof recipe inspects browser-grounded CSS delivery. Music and other
 
 | Deployed journey | Reviewed | Qualified | Rejected | Needs evidence |
 |---|---:|---:|---:|---:|
-| WP Rocket: documented Remove Unused CSS capability | 12 | 1 | 8 | 3 |
+| WP Rocket: documented Remove Unused CSS capability | 12 | 1 | 11 | 0 |
 | FASTKEYS: song, key, chord and keyboard learning | 12 | 0 | 11 | 1 |
 
-The WP Rocket run discovered [a real loading-time conversation](https://www.reddit.com/r/Wordpress/comments/1vbtti8/how_can_i_speed_up_the_load_time_of_my/) and inspected the author's explicitly associated public staging website. A fresh Chromium run observed blocking CSS and limited initial-view CSS rule coverage. The dossier connected that observation to the documented Remove Unused CSS capability, suggested an authorized isolated trial, and separated that suggestion from measured facts. No plugin was applied and no improvement was promised.
+The latest WP Rocket run discovered [a real loading-time conversation](https://www.reddit.com/r/Hosting/comments/1r1asxn/need_advice_whether_website_slow_loading_is_due/) and inspected the author's explicitly associated [public website](https://djcmount.com/). A fresh Chromium run observed 43 render-blocking resource entries; the theme stylesheet contained 243643 decoded CSS bytes, with 28501 bytes in used-rule ranges in the initial state. The dossier connected this observation to the documented Remove Unused CSS capability and suggested an authorized isolated trial. No plugin was applied, no safe-removal percentage was established, and no improvement or root cause was promised.
 
 The FASTKEYS run used music-related discovery queries instead of inherited web-performance queries. Related but unsupported requests were rejected; plausible cases without usable proof stayed insufficient. The final source-aware validation reviewed six Reddit and six X candidates, with the same qualification rules for both.
 
@@ -148,6 +148,7 @@ NEXT_TELEMETRY_DISABLED=1
 Check and run the local UI:
 
 ```sh
+node --env-file=.env.local -e "for (const k of ['AGENT37_API_KEY','MONID_API_KEY','OPENAI_API_KEY','AGENT37_INSTANCE_ID']) {if (process.env[k] === undefined || process.env[k].length === 0) throw new Error('Missing '+k)} console.log('Server configuration present')"
 npm test
 npm run typecheck
 npm run build
@@ -170,7 +171,5 @@ Open http://127.0.0.1:3000. For Windows, point `HALLAR_CHROME_PATH` to your inst
 - CSS outside used-rule ranges may be required elsewhere. Hallar does not prove safe removal, a root cause, conversion lift or that a product will fix the issue.
 - State is filesystem-backed on one host, with daily demo limits and bounded concurrency. This is a hackathon deployment, not a multi-region service.
 - No automated spam, outreach, site modification or optimizer installation occurs.
-
-The official repository starts with the current source and normal commit timestamps. No fabricated history or provider activity is claimed.
 
 No open-source license has been declared.
