@@ -20,7 +20,7 @@ const assessmentSchema=object({assessments:{type:'array',items:object({candidate
 const proofSchema=object({outcome:{type:'string',enum:['REJECTED','INSUFFICIENT_EVIDENCE','QUALIFIED']},reason:str,capabilityId:str,inferred:strings,suggested:strings,limitations:strings});
 try{
  const {profile,queries,productProfileHash}=JSON.parse(await fs.readFile(path.join(dir,'input.json'),'utf8')) as {profile:Profile;queries:DiscoveryQuery[];productProfileHash:string};if(validatePlan(profile,queries)!==productProfileHash)throw new Error('Discovery identity mismatch');
- await stage('SCOUTING','Looking for real public problems');
+ await stage('SCOUTING','Finding people with relevant pain');
  const candidates=new Map<string,Candidate>();
  for(const planned of queries){
   if(planned.source==='x'){

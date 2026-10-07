@@ -4,7 +4,7 @@
 
 **[Live App](https://eca57d18247a343fe812.agent37.app)** · **[Demo Video](https://github.com/Techkeyy/Hallar/releases/tag/v0.1.0)** · **[GitHub](https://github.com/Techkeyy/Hallar)**
 
-Hallar learns what your product genuinely does, searches real public conversations for people experiencing problems it can actually solve, rejects weak matches, and checks promising opportunities against public evidence before preparing useful proof. It is a scout desk for founders and sellers who want a defensible reason to help someone before reaching out.
+Hallar learns what your product genuinely does, searches real public conversations for people experiencing problems it can actually solve, rejects weak matches, verifies promising prospects against public evidence, and prepares useful proof before you reach out.
 
 > “Can I genuinely help this person, and can I bring useful evidence before pitching?”
 
@@ -17,17 +17,18 @@ Finding a few people you can genuinely help can mean reading dozens of conversat
 Tools such as [Syften](https://syften.com/) monitor keywords and filter mentions. Hallar focuses on a narrower next step: connect a confirmed product capability to evidence about one prospect's problem. It does not claim to replace continuous social listening.
 
 ```text
-Keyword workflow:  conversation → relevance → outreach
+Traditional:  find lead → intent score → pitch
 
-Hallar:            conversation → capability fit → evidence check
-                                → useful proof → human decision
+Hallar:       find person with real pain → verify product fit
+              → inspect evidence → prepare useful proof
+              → human decides whether to engage
 ```
 
 **Rejection is a feature.** Hallar prefers no lead over a fake lead. A missing public asset or unsupported proof type remains **Needs more proof**, even when the conversation sounds promising.
 
 ## Try the live app
 
-1. Paste a public product URL.
+1. Paste your product URL. Hallar reads it to understand your product and never posts the link anywhere.
 2. Review and edit the product brief, including capabilities and boundaries.
 3. Start scouting. A fresh discovery plan is generated from that confirmed brief.
 4. Watch the researcher search, filter, inspect and prepare proof as those backend stages occur.
@@ -55,7 +56,7 @@ The FASTKEYS run used music-related discovery queries instead of inherited web-p
 flowchart TD
   A[Product URL] --> B[Editable product brief]
   B --> C[Fresh profile-bound Reddit and X queries]
-  C --> D[Real public discovery]
+  C --> D[Find people expressing relevant pain]
   D --> E[Capability-based qualification]
   E --> F[Rejected]
   E --> G[Needs more evidence]
@@ -67,7 +68,7 @@ flowchart TD
 
 1. **Reads** actual public product pages and extracts capabilities with source quotations.
 2. **Plans** separate Reddit and X searches from the current confirmed profile. Every query and scout job carries the same profile hash.
-3. **Discovers** bounded public posts using Monid, normalizing source, author, body, original URL and associated links.
+3. **Finds** people describing relevant pain in bounded public posts using Monid, normalizing source, author, body, original URL and associated links.
 4. **Qualifies** each conversation with OpenAI against supported capabilities and evidence requirements.
 5. **Inspects** up to two explicitly associated public assets with a fresh, sandboxed Chromium context.
 6. **Prepares** a dossier that keeps observations, inference, suggestions and limitations distinct.
@@ -91,6 +92,8 @@ The animation follows actual application stages. There are no generated progress
 | **Agent37** | Hosts the Next.js app and runs the scouting worker through its private execution API |
 | **Monid** | Supplies real Reddit searches, Reddit reply context, and X searches through TikHub |
 | **OpenAI** | Understands product pages, plans discovery, classifies fit, and reasons over measured evidence |
+
+The scout asks: **Who is publicly experiencing a problem this product can genuinely help solve?**
 
 Removing any of these integrations breaks the demonstrated live path. Supabase is not used.
 
