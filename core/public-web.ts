@@ -1,0 +1,25 @@
+import dns from 'node:dns/promises';
+import http from 'node:http';
+import https from 'node:https';
+import net from 'node:net';
+import zlib from 'node:zlib';
+import ipaddr from 'ipaddr.js';
+export function publicAddress(address:string){try{return ipaddr.process(address).range()==='unicast';}catch{return false;}}
+export function webUrl(raw:string){const u=new URL(raw);if(!['http:','https:'].includes(u.protocol)||u.username||u.password||(u.port&&!['80','443'].includes(u.port)))throw new Error('Use a public HTTP or HTTPS website');if(u.hostname==='localhost'||u.hostname.endsWith('.localhost')||u.hostname.endsWith('.local'))throw new Error('Private websites are not supported');return u;}
+export async function resolvePublic(host:string){const normalized=host.replace(/^\[|\]$/g,'');const addresses=net.isIP(normalized)?[{address:normalized,family:net.isIP(normalized)}]:await dns.lookup(normalized,{all:true});if(!addresses.length||addresses.some(a=>!publicAddress(a.address)))throw new Error('Private or reserved destination blocked');return addresses.find(a=>a.family===4)??addresses[0];}
+export async function publicPage(raw:string,redirects=0):Promise<{url:string;status:number;html:string;headers:Record<string,string>}>{
+ if(redirects>3)throw new Error('Too many website redirects');const url=webUrl(raw);const address=await resolvePublic(url.hostname);
+ const response=await new Promise<{status:number;headers:http.IncomingHttpHeaders;bytes:Buffer}>((resolve,reject)=>{
+ const request=(url.protocol==='https:'?https:http).request(url,{method:'GET',headers:{'User-Agent':'Hallar public-page research','Accept':'text/html','Accept-Encoding':'gzip, deflate, br'},lookup:((_host:unknown,options:{all?:boolean},callback:Function)=>options?.all?callback(null,[address]):callback(null,address.address,address.family)) as never},res=>{const parts:Buffer[]=[];let size=0;res.on('data',(part:Buffer)=>{size+=part.length;if(size>2000000){res.destroy(new Error('Website response too large'));}else parts.push(part);});res.on('end',()=>resolve({status:res.statusCode??0,headers:res.headers,bytes:Buffer.concat(parts)}));res.on('error',reject);});request.setTimeout(25000,()=>request.destroy(new Error('Website timed out')));request.on('error',reject);request.end();});
+ if([301,302,303,307,308].includes(response.status)&&response.headers.location)return publicPage(new URL(response.headers.location,url).href,redirects+1);
+ const encoding=response.headers['content-encoding'];let bytes=response.bytes;if(encoding==='gzip')bytes=zlib.gunzipSync(bytes,{maxOutputLength:3000000});else if(encoding==='br')bytes=zlib.brotliDecompressSync(bytes,{maxOutputLength:3000000});else if(encoding==='deflate')bytes=zlib.inflateSync(bytes,{maxOutputLength:3000000});
+ return {url:url.href,status:response.status,html:bytes.toString('utf8'),headers:Object.fromEntries(['cache-control','content-encoding','content-type','server','cf-cache-status'].map(k=>[k,String(response.headers[k]??'')]))};
+}
+export const readable=(html:string)=>html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&[^;\s]{1,12};/g,' ').replace(/\s+/g,' ').trim().slice(0,18000);
+export async function browserProxy(){
+ const sockets=new Set<net.Socket>();
+ const server=http.createServer(async(req,res)=>{try{const u=webUrl(req.url??'');const ip=await resolvePublic(u.hostname);const forwarded={...req.headers,host:u.host};delete forwarded['proxy-authorization'];const upstream=http.request(u,{method:req.method,headers:forwarded,lookup:((_h:unknown,opts:{all?:boolean},cb:Function)=>opts?.all?cb(null,[ip]):cb(null,ip.address,ip.family)) as never},r=>{res.writeHead(r.statusCode??502,r.headers);r.pipe(res);});upstream.on('error',()=>{res.writeHead(502);res.end();});req.pipe(upstream);}catch{res.writeHead(403);res.end('Public destinations only');}});
+ server.on('connect',async(req,socket,head)=>{try{const u=webUrl(`https://${req.url}`);const ip=await resolvePublic(u.hostname);const port=Number(u.port||443);if(![80,443].includes(port))throw new Error('Port blocked');const remote=net.connect({host:ip.address,port,family:ip.family as 4|6},()=>{socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');if(head.length)remote.write(head);remote.pipe(socket);socket.pipe(remote);});remote.setTimeout(45000,()=>remote.destroy());remote.on('error',()=>socket.destroy());socket.on('error',()=>remote.destroy());socket.on('close',()=>remote.destroy());}catch{socket.end('HTTP/1.1 403 Forbidden\r\n\r\n');}});
+ server.on('connection',socket=>{sockets.add(socket);socket.on('close',()=>sockets.delete(socket));});
+ await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));const address=server.address();if(!address||typeof address==='string')throw new Error('Proxy unavailable');return {url:`http://127.0.0.1:${address.port}`,close:()=>new Promise<void>(resolve=>{server.close(()=>resolve());for(const socket of sockets)socket.destroy();server.closeAllConnections();})};
+}

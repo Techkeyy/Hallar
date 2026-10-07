@@ -1,0 +1,23 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+dist/
+work/
+*.log
+.runtime/
+outputs/
+*.tsbuildinfo
+
+# Private operator ledger and local review/runtime artifacts
+director.md
+.codex/
+.agents/
+coverage/
+screenshots/
+*.webm
+*.mp4
+*.zip
+*.pem
+*.key

@@ -1,0 +1,2 @@
+import {session,reply,originCheck,profileSchema,startScout,bodyJson} from '../../../lib/server';
+export async function POST(req:Request){const s=await session(req);try{originCheck(req);const body=await bodyJson(req);const profile=profileSchema.parse(body.profile);const job=await startScout(s.owner,profile);return reply({job},s.cookie,202);}catch(error){const message=error instanceof Error&&/daily|busy|Origin/.test(error.message)?error.message:'Your profile could not start scouting. Check it and try again.';return reply({error:message},s.cookie,400);}}

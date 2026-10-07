@@ -1,0 +1,1 @@
+.cap-row{display:flex;align-items:center;gap:8px}.cap-row input,.cap-row textarea{flex:1}.capability select{font:inherit;font-size:14px;min-height:44px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:6px;padding:8px 12px;margin-top:8px;max-width:100%}.capability select:focus{outline:3px solid #8ac4aa77}
